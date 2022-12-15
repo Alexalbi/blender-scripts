@@ -26,9 +26,12 @@ pattern = r"(.+)*(\d{4})(.+)(\..+)"
 
 for file in files:
     # match the pattern
-    groups = re.match(pattern, file).groups()
-    # if the suffix is in our dictionary
-    if groups[2] in viewsDict.keys():
-        # rename the file
-        newfile = viewsDict[groups[2]] + "_" + (groups[0] or "") + groups[1] + groups[3]
-        os.rename(os.path.join(renderPath, file), os.path.join(renderPath, newfile))
+    matched = re.match(pattern, file)
+    # if the current file matches the pattern
+    if matched:
+        groups = matched.groups()
+        # if the suffix is in our dictionary
+        if groups[2] in viewsDict.keys():
+            # rename the file
+            newfile = viewsDict[groups[2]] + "_" + (groups[0] or "") + groups[1] + groups[3]
+            os.rename(os.path.join(renderPath, file), os.path.join(renderPath, newfile))
