@@ -53,7 +53,7 @@ for frame in range(scene.frame_start, scene.frame_end + 1):
     new_contact_L = contact_L and not(contact_L_old)
 
     if new_contact_R or new_contact_L:
-        pitch = 24 # note C1
+        pitch = 36 # note C1
         duration = 1
         # interpolates midi note volume depending on the animation speed
         volume = int(interp(speed, [1, 6], [10, 127]))
