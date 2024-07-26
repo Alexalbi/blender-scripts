@@ -4,6 +4,23 @@ import os
 # Define a custom property to store scene names
 bpy.types.WindowManager.scene_names = bpy.props.CollectionProperty(type=bpy.types.PropertyGroup)
 
+# Operator to add all scenes names to the list
+class AddAllScenesToList(bpy.types.Operator):
+    bl_idname = "scene.add_all_scenes_to_list"
+    bl_label = "Add All Scenes to List"
+    
+    def execute(self, context):
+        scenes = bpy.data.scenes
+        for scene in scenes:  
+            scene_name = scene.name
+            if scene_name not in bpy.context.window_manager.scene_names:
+                item = bpy.context.window_manager.scene_names.add()
+                item.name = scene_name
+                self.report({'INFO'}, f"Added '{scene_name}' to the list")
+            else:
+                self.report({'WARNING'}, f"Scene '{scene_name}' already exists in the list")
+        return {'FINISHED'}
+    
 # Operator to add the current scene name to the list
 class AddSceneNameToList(bpy.types.Operator):
     bl_idname = "scene.add_scene_name_to_list"
@@ -92,6 +109,8 @@ class SCENE_PT_scene_list_panel(bpy.types.Panel):
         row = layout.row()
         row.operator("scene.add_scene_name_to_list", text="Add Current Scene")
         row = layout.row()
+        row.operator("scene.add_all_scenes_to_list", text="Add All Scenes")
+        row = layout.row()
         row.operator("scene.launch_scenes_render", text="Launch Scenes Render")
 
 # Operator to launch render
@@ -107,15 +126,24 @@ class LaunchScenesRender(bpy.types.Operator):
         commands = []
         for scene in scenes:
             commands.append(f"\"{blenderpath}\" --background \"{filepath}\" --scene \"{scene.name}\" -a")
-        command = ' & '.join(commands)
-        command = "start /B start cmd.exe @cmd /k \"" + command + "\""
-        os.system(command) 
-        print(command)
+            if len(commands) > 20:
+                command = ' & '.join(commands)
+                command = "start /B start cmd.exe @cmd /k \"" + command + "\""
+                os.system(command) 
+                print(command)
+                commands = []
+        if commands:
+            command = ' & '.join(commands)
+            command = "start /B start cmd.exe @cmd /k \"" + command + "\""
+            os.system(command) 
+            print(command)
+            commands = []
         return {'FINISHED'}
 
 # Register the addon
 def register():
     bpy.utils.register_class(AddSceneNameToList)
+    bpy.utils.register_class(AddAllScenesToList)
     bpy.utils.register_class(RemoveSceneNameFromList)
     bpy.utils.register_class(MoveSceneNameUp)
     bpy.utils.register_class(MoveSceneNameDown)
@@ -124,6 +152,7 @@ def register():
 
 def unregister():
     bpy.utils.unregister_class(AddSceneNameToList)
+    bpy.utils.unregister_class(AddAllScenesToList)
     bpy.utils.unregister_class(RemoveSceneNameFromList)
     bpy.utils.unregister_class(MoveSceneNameUp)
     bpy.utils.unregister_class(MoveSceneNameDown)
