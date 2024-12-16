@@ -8,7 +8,7 @@ import re
 object = bpy.context.active_object
 active = object.modifiers.active
 activename = active.node_group.name
-item_tree = bpy.data.node_groups[activename].interface.items_tree
+item_tree = bpy.data.node_groups[activename].interface.items_tree 
 nodes = bpy.data.node_groups[activename].nodes
 
 initialinputs = ("<!-- wp:heading --> \n"
@@ -47,14 +47,16 @@ for item in item_tree:
     if item.item_type != 'PANEL' and not item.hide_in_modifier:
         if item.in_out == "INPUT":
             if item.description != "":
+                if item.description[-1] == ".":
+                    item.description = item.description[:-1]
                 if item.parent.name == "":
                     inputname = inoutnamestart + item.name + inoutnameend
-                    inputdescription = inoutdescriptionstart + item.description + inoutdescriptionend
+                    inputdescription = inoutdescriptionstart + item.description + '.' + inoutdescriptionend
                     inputs.append(inputname)
                     inputs.append(inputdescription)
                 else:
                     inputname = inoutnamestartpanel + item.name + inoutnameendpanel
-                    inputdescription = inoutdescriptionstartpanel + item.description + inoutdescriptionend
+                    inputdescription = inoutdescriptionstartpanel + item.description + '.' + inoutdescriptionend
                     inputs.append(inputname)
                     inputs.append(inputdescription)
             else:
@@ -62,8 +64,10 @@ for item in item_tree:
                     
         else:
             if item.description != "":
+                if item.description[-1] == ".":
+                    item.description = item.description[:-1]
                 inputname = inoutnamestart + item.name + inoutnameend
-                inputdescription = inoutdescriptionstart + item.description + inoutdescriptionend
+                inputdescription = inoutdescriptionstart + item.description + '.' + inoutdescriptionend
                 outputs.append(inputname)
                 outputs.append(inputdescription)
                 
@@ -71,7 +75,9 @@ for item in item_tree:
         inputpanel = inoutnamestart + item.name + inoutnameend
         inputs.append(inputpanel)
         if item.description != "":
-            inputdescription = inoutdescriptionstart + item.description + inoutdescriptionend
+            if item.description[-1] == ".":
+                item.description = item.description[:-1]
+            inputdescription = inoutdescriptionstart + item.description + '.' + inoutdescriptionend
             inputs.append(inputdescription)
 
 fulldoc = "\n\n".join(description + inputs + outputs)
